@@ -1,0 +1,669 @@
+{% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
+    %}
+
+    
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+      <style>
+        #modal {
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+          }
+          .response-container {
+              height: 400px;
+              overflow-y: auto;
+              white-space: pre-wrap;
+          }
+          body {
+            font-family: 'Instrument Sans', sans-serif;
+        }
+        </style>
+      </head>
+      <body class="flex flex-col min-h-screen">
+
+        <div id="disclaimerModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
+            <div class="bg-white rounded-lg p-8 max-w-xl mx-4 overflow-y-auto max-h-screen">
+                <h2 class="text-xl font-bold text-red-600 mb-4">
+                    Wichtiger medizinischer Haftungsausschluss
+                </h2>
+                <div class="space-y-4">
+                    <p class="font-medium">
+                        Bitte lesen Sie diesen wichtigen Hinweis:
+                    </p>
+                    
+                    <div class="space-y-2 text-gray-700">
+                        <p>
+                            • Diese Anwendung verwendet künstliche Intelligenz, um allgemeine Informationen und Vorschläge auf der Grundlage der von Ihnen beschriebenen Symptome zu liefern.
+                        </p>
+                        <p>
+                            • Die generierten Antworten sind KEIN Ersatz für professionelle medizinische Beratung, Diagnose oder Behandlung.
+                        </p>
+                        <p>
+                            • Das KI-System hat seine Grenzen und erfasst möglicherweise nicht alle möglichen medizinischen Zustände oder Notfälle.
+                        </p>
+                        <p>
+                            • Wenden Sie sich für eine angemessene medizinische Beratung und Behandlung immer an einen qualifizierten Gesundheitsdienstleister.
+                        </p>
+                        <p class="font-semibold text-red-600">
+                            • Wenn Sie sich in einem medizinischen Notfall befinden, rufen Sie den Notdienst (112) an oder suchen Sie sofort einen Arzt auf.
+                        </p>
+                    </div>
+        
+                    <p class="pt-2 text-sm text-gray-600">
+                        Wenn Sie auf „Ich verstehe“ klicken, bestätigen Sie, dass Sie diese Einschränkungen gelesen und verstanden haben und sich bei medizinischen Entscheidungen nicht ausschließlich auf dieses Tool verlassen werden.
+                    </p> 
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button
+                        type="hidden" id="disclaimerAccepted" name="disclaimerAccepted" value="false"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg">
+                        Ich verstehe
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+    <div class="container mx-auto px-4">
+        <form id="symptomForm" class="space-y-6 mx-8">
+            <div class="max-w-3xl mx-auto space-y-6">
+        
+                
+            <div id="Name" class="bg-white rounded-lg shadow p-6" required>
+                <label class="block text-lg font-medium mb-2">Für wen wird der Fragebogen beantwortet?</label>
+                <input type="text" name="Name" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+        
+        
+                <div id="Pflegegrad" class="bg-white rounded-lg shadow p-6">
+                    <label class="block text-lg font-medium mb-2">Ist ein Pflegegrad vorhanden?</label>
+                    <div class="space-y-2">
+                        <div class="flex items-center">
+                            <input type="radio" id="pflegegrad-nein" name="Pflegegrad" value="Ich habe keinen Pflegegrad" class="mr-2">
+                            <label for="pflegegrad-nein">Ich habe keinen Pflegegrad</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="radio" id="pflegegrad-1" name="Pflegegrad" value="Ich habe Pflegegrad 1" class="mr-2">
+                            <label for="pflegegrad-1">Ich habe Pflegegrad 1</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="radio" id="pflegegrad-2" name="Pflegegrad" value="Ich habe Pflegegrad 2" class="mr-2">
+                            <label for="pflegegrad-2">Ich habe Pflegegrad 2</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="radio" id="pflegegrad-3" name="Pflegegrad" value="Ich habe Pflegegrad 3" class="mr-2">
+                            <label for="pflegegrad-3">Ich habe Pflegegrad 3</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="radio" id="pflegegrad-4" name="Pflegegrad" value="Ich habe Pflegegrad 4" class="mr-2">
+                            <label for="pflegegrad-4">Ich habe Pflegegrad 4</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="radio" id="pflegegrad-5" name="Pflegegrad" value="Ich habe Pflegegrad 5" class="mr-2">
+                            <label for="pflegegrad-5">Ich habe Pflegegrad 5</label>
+                        </div>
+                    </div>
+                </div>
+                
+        
+            <div id="Mobilität" class="bg-white rounded-lg shadow p-6">
+                <label class="block text-lg font-medium mb-2">Haben Sie körperliche oder funktionelle Einschränkungen bei der Bewegung?</label>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <input type="radio" id="Mobilität-ja" name="Mobilität" value="Ich habe körperliche oder funktionelle Einschränkungen bei der Bewegung" class="mr-2" onclick="openFollowUpQuestions()">
+                        <label for="Mobilität-ja">Ich habe körperliche oder funktionelle Einschränkungen bei der Bewegung</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="radio" id="Mobilität-nein" name="Mobilität" value="Ich habe keine körperlichen oder funktionellen Einschränkungen bei der Bewegung" class="mr-2" onclick="closeFollowUpQuestions(); clearResponsesByIds(['Einschränkungen', 'Hilfsmittel', 'Geräte']);">
+                        <label for="Mobilität-nein">Ich habe keine körperlichen oder funktionellen Einschränkungen bei der Bewegung</label>
+                    </div>
+                </div>
+            </div>
+            
+        
+            <div id="Einschränkungen" class="bg-white rounded-lg shadow p-6" >
+                <label class="block text-lg font-medium mb-2">Wo haben Sie diese Einschränkungen?</label>
+                <select name="Einschränkungen" class="w-full p-2 border rounded-lg">
+                    <option value="">Wählen Sie eine Option</option>
+                    <option value="Ich habe Einschränkungen in den oberen Extremitäten">Ich habe Einschränkungen in den oberen Extremitäten</option>
+                    <option value="Ich habe Einschränkungen in den unteren Extremitäten">Ich habe Einschränkungen in den unteren Extremitäten</option>
+                    <option value="Ich habe Einschränkungen sowohl in den oberen als auch unteren Extremitäten">Ich habe Einschränkungen sowohl in den oberen als auch unteren Extremitäten</option>
+                </select>
+            </div>
+        
+        
+            <div id="Hilfsmittel" class="bg-white rounded-lg shadow p-6">
+                <label class="block text-lg font-medium mb-2">Benötigen Sie Hilfsmittel für die Bewegung?</label>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <input type="radio" id="hilfsmittel-ja" name="Hilfsmittel" value="Ich brauche Hilfsmittel für die Bewegung" class="mr-2" onclick="openFollowUpQuestion('Geräte'); clearResponsesByIds(['Treppen'])">
+                        <label for="hilfsmittel-ja">Ich brauche Hilfsmittel für die Bewegung</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="radio" id="hilfsmittel-nein" name="Hilfsmittel" value="Ich brauche keine Hilfsmittel für die Bewegung" class="mr-2" onclick="closeFollowUpQuestion('Geräte')">
+                        <label for="hilfsmittel-nein">Ich brauche keine Hilfsmittel für die Bewegung</label>
+                    </div>
+                </div>
+            </div>
+            
+        
+            <div id="Geräte" class="bg-white rounded-lg shadow p-6 hidden">
+                <label class="block text-lg font-medium mb-2">Welche Hilfsmittel brauchen Sie?</label>
+                <div class="space-y-2">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="Geräte" value="Ich brauche einen Gehstock" class="mr-2">
+                        Ich brauche einen Gehstock
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="Geräte" value="Ich brauche einen Rollstuhl" class="mr-2">
+                        Ich brauche einen Rollstuhl
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="Geräte" value="Ich brauche einen Rollator" class="mr-2">
+                        Ich brauche einen Rollator
+                    </label>
+                </div>
+            </div>    
+        
+        
+            <div id="Treppen" class="bg-white rounded-lg shadow p-6">
+                <label class="block text-lg font-medium mb-2">Müssen Sie täglich Treppen steigen?</label>
+                <div class="space-y-2">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="Treppen" value="Ich muss weniger als 3 Stufen steigen" class="mr-2">
+                        Ich muss weniger als 3 Stufen steigen
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="Treppen" value="Für Aktivität und Bewegung muss ich jeden Tag das Haus verlassen" class="mr-2">
+                        Für Aktivität und Bewegung muss ich jeden Tag das Haus verlassen
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="Treppen" value="Ja innerhalb des Hauses" class="mr-2">
+                        Ja innerhalb des Hauses
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="Treppen" value="Ich muss keine Treppen steigen" class="mr-2">
+                        Ich muss keine Treppen steigen
+                    </label>
+                </div>
+            </div>
+            
+        
+            <div id="Stürze" class="bg-white rounded-lg shadow p-6">
+                <label class="block text-lg font-medium mb-2">Sind Sie in letzer Zeit gestürzt</label>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <input type="radio" id="Stürze-ja" name="Stürze" value="Ich bin in letzer Zeit gestürzt" class="mr-2">
+                        <label for="Stürze-ja">Ich bin in letzer Zeit gestürzt</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="radio" id="Stürze-nein" name="Stürze" value="Ich bin in letzer Zeit nicht gestürzt" class="mr-2">
+                        <label for="Stürze-nein">Ich bin in letzer Zeit nicht gestürzt</label>
+                    </div>
+                </div>
+            </div>
+            
+        
+            <div id="Kommunikation" class="bg-white rounded-lg shadow p-6">
+                <label class="block text-lg font-medium mb-2">
+                    Haben Sie körperliche oder funktionelle Einschränkungen bei der Kommunikation?
+                </label>
+                <div class="space-y-2">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="Kommunikation" value="Ich habe funktionelle Einschränkungen beim Sehen" class="mr-2">
+                        Ich habe funktionelle Einschränkungen beim Sehen
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="Kommunikation" value="Ich habe funktionelle Einschränkungen beim Hören" class="mr-2">
+                        Ich habe funktionelle Einschränkungen beim Hören
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="Kommunikation" value="Ich habe funktionelle Einschränkungen beim Sprechen" class="mr-2">
+                        Ich habe funktionelle Einschränkungen beim Sprechen
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="Kommunikation" value="Ich habe keine funktionelle Einschränkungen" class="mr-2">
+                        Ich habe keine funktionelle Einschränkungen
+                    </label>
+                </div>
+            </div>    
+        
+        
+            <div id="Schlaf" class="bg-white rounded-lg shadow p-6">
+                <label class="block text-lg font-medium mb-2">Haben Sie Ein- oder Durchschlafprobleme?</label>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <input type="radio" id="schlaf-ja" name="Schlaf" value="Ich habe Ein- oder Durchschlafprobleme" class="mr-2">
+                        <label for="schlaf-ja">Ich habe Ein- oder Durchschlafprobleme</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="radio" id="schlaf-nein" name="Schlaf" value="Ich habe keine Ein- oder Durchschlafprobleme" class="mr-2">
+                        <label for="schlaf-nein">Ich habe keine Ein- oder Durchschlafprobleme</label>
+                    </div>
+                </div>
+            </div>
+            
+        
+            <div id="Schlafprobleme" class="bg-white rounded-lg shadow p-6">
+                <label class="block text-lg font-medium mb-2">Brauchen Sie Unterstützung bei der Körperpflege?</label>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <input type="radio" id="pflege-selbststaendig" name="Schlafprobleme" value="Ich bin selbstständig" class="mr-2">
+                        <label for="pflege-selbststaendig">Ich bin selbstständig</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="radio" id="pflege-angehoerige" name="Schlafprobleme" value="Ich brauche Hilfe durch Angehörige" class="mr-2">
+                        <label for="pflege-angehoerige">Ich brauche Hilfe durch Angehörige</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="radio" id="pflege-professionell" name="Schlafprobleme" value="Ich brauche professionelle Hilfe" class="mr-2">
+                        <label for="pflege-professionell">Ich brauche professionelle Hilfe</label>
+                    </div>
+                </div>
+            </div>
+            
+        
+            <div id="Unterstützung" class="bg-white rounded-lg shadow p-6">
+                <label class="block text-lg font-medium mb-2">Brauchen Sie Unterstützung im Haushalt?</label>
+                <div class="space-y-2">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="Unterstützung" value="Ich brauche Hilfe beim Essen/Kochen" class="mr-2">
+                        Ich brauche Hilfe beim Essen/Kochen
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="Unterstützung" value="Ich brauche Hilfe beim Einkaufen" class="mr-2">
+                        Ich brauche Hilfe beim Einkaufen
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="Unterstützung" value="Ich brauche Hilfe bei der Haushaltsreinigung" class="mr-2">
+                        Ich brauche Hilfe bei der Haushaltsreinigung
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="Unterstützung" value="Ich brauche Hilfe bei der Gartenarbeit" class="mr-2">
+                        Ich brauche Hilfe bei der Gartenarbeit
+                    </label>
+                </div>
+            </div>
+            
+        
+            <div id="Atmung" class="bg-white rounded-lg shadow p-6">
+                <label class="block text-lg font-medium mb-2">Haben Sie Atembeschwerden?</label>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <input type="radio" id="atmung-ja" name="Atmung" value="Ich habe Atembeschwerden" class="mr-2">
+                        <label for="atmung-ja">Ich habe Atembeschwerden</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="radio" id="atmung-nein" name="Atmung" value="Ich habe keine Atembeschwerden" class="mr-2">
+                        <label for="atmung-nein">Ich habe keine Atembeschwerden</label>
+                    </div>
+                </div>
+            </div>
+        
+        
+            <div id="Vergessen" class="bg-white rounded-lg shadow p-6">
+                <label class="block text-lg font-medium mb-2">Vergessen Sie ab und zu:</label>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="vergessen-trinken" name="Vergessen" value="Ich vergesse genug zu trinken" class="mr-2">
+                        <label for="vergessen-trinken">Ich vergesse genug zu trinken</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="vergessen-herd" name="Vergessen" value="Ich vergesse den Herd abzuschalten" class="mr-2">
+                        <label for="vergessen-herd">Ich vergesse den Herd abzuschalten</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="vergessen-tuer" name="Vergessen" value="Ich vergesse die Tür abzuschließen" class="mr-2">
+                        <label for="vergessen-tuer">Ich vergesse die Tür abzuschließen</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="vergessen-medikamente" name="Vergessen" value="Ich vergesse regelmäßig Medikamente zu nehmen" class="mr-2">
+                        <label for="vergessen-medikamente">Ich vergesse regelmäßig Medikamente zu nehmen</label>
+                    </div>
+                </div>
+            </div>            
+            
+        
+            <div id="Hobbys" class="bg-white rounded-lg shadow p-6">
+                <label class="block text-lg font-medium mb-2">Welchen Hobbys und Interessen gehen Sie regelmäßig nach?</label>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="hobbys-kreativ" name="Hobbys" value="kreative Hobbys" class="mr-2">
+                        <label for="hobbys-kreativ">Kreative Hobbys</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="hobbys-lesen" name="Hobbys" value="Lesen/Rätseln" class="mr-2">
+                        <label for="hobbys-lesen">Lesen/Rätseln</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="hobbys-soziale" name="Hobbys" value="soziale Aktivitäten" class="mr-2">
+                        <label for="hobbys-soziale">Soziale Aktivitäten</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="hobbys-sport" name="Hobbys" value="Sport" class="mr-2">
+                        <label for="hobbys-sport">Sport</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="hobbys-kochen" name="Hobbys" value="Kochen und Backen" class="mr-2">
+                        <label for="hobbys-kochen">Kochen und Backen</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="hobbys-glaube" name="Hobbys" value="Glauben und Kirche" class="mr-2">
+                        <label for="hobbys-glaube">Glaube und Kirche</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="hobbys-handwerkliches" name="Hobbys" value="Handwerkliches oder Gartenarbeit" class="mr-2">
+                        <label for="hobbys-handwerkliches">Handwerkliches oder Gartenarbeit</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="hobbys-keine" name="Hobbys" value="Ich habe keine Hobbys" class="mr-2">
+                        <label for="hobbys-keine">Keine</label>
+                    </div>
+                </div>
+            </div>
+            
+        
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                        <label class="block text-lg font-medium mb-2">Zusätzliche Angaben zu Ihrem Zustand:</label>
+                        <textarea name="WeitereInfos" class="w-full p-2 border rounded-lg" rows="4"></textarea>
+                </div>
+        
+                <div class="flex flex-col sm:flex-row justify-between max-w-3xl mx-auto mt-4 space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button type="submit" id="getResponseButton" onclick ="goToResponseArea()"class="bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-400 w-full sm:w-auto">
+                        Formular abschicken
+                    </button>
+                    <button id="reset" type="button" onclick="clearAllResponses()" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-200 w-full sm:w-auto">
+                        Alle Beantwortungen löschen
+                    </button>
+                </div>        
+        
+            <div class="container mx-auto px-4 py-8">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h2 class="text-lg font-semibold mb-2">KI-Vorschläge</h2>
+                    <div id="response-area" class="response-container border border-gray-200 rounded-lg p-4 bg-gray-50">Die Antworten werden hier erscheinen...</div>
+                </div>
+            </div>
+        </form>
+    <div id="modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+        <div id="loading" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+            <div class="flex flex-col items-center">
+              <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <p class="text-white mt-4">Laden...</p>
+            </div>
+          </div>
+    </div>
+
+    <div class = "flex justify-center mt-4">
+        <button type="button" id="send-pdf" onclick="sendPDF()" class="bg-green-700 text-white px-6 py-2 rounded-lg hover:bg-green-400">
+            KI-Antwort als PDF senden
+        </button>
+    </div>      
+<script>
+
+    function openFollowUpQuestion(questionId) {
+        const questionDiv = document.getElementById(questionId);
+        questionDiv.classList.remove('hidden');
+    }
+
+    function openFollowUpQuestions() {
+        const questionDiv2 = document.getElementById('Einschränkungen');
+        questionDiv2.classList.remove('hidden');
+
+        const questionDiv3 = document.getElementById('Hilfsmittel');
+        questionDiv3.classList.remove('hidden');
+
+        const questionDiv4 = document.getElementById('Treppen');
+        questionDiv4.classList.remove('hidden');
+    }
+
+    function closeFollowUpQuestions() {
+        const questionDiv2 = document.getElementById('Einschränkungen');
+        questionDiv2.classList.add('hidden');
+
+        const questionDiv3 = document.getElementById('Hilfsmittel');
+        questionDiv3.classList.add('hidden');    
+
+        const questionDiv4 = document.getElementById('Treppen');
+        questionDiv4.classList.add('hidden');
+    }
+    function showQuestions() {
+        const mobility = document.getElementById('Mobilität');
+
+        if (mobility.value === 'Ja') {
+            openFollowUpQuestions();
+        }
+    }
+
+    function closeFollowUpQuestion(questionId) {
+        const questionDiv = document.getElementById(questionId);
+        questionDiv.classList.add('hidden');
+    }
+
+    let responseButton = document.getElementById('getResponseButton');
+
+    function goToResponseArea() {
+        document.body.scrollIntoView({behavior: 'smooth', block:"end"});
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('disclaimerModal');
+        const button = document.getElementById('disclaimerAccepted');
+        const disclaimerAcceptedField = document.getElementById('disclaimerAccepted');
+
+            fetch('/api/saved-choices')
+                .then(response => response.json())
+                .then(data => {
+                    const savedChoices = data.savedChoices || {};
+                    for (const [key, value] of Object.entries(savedChoices)) {
+                        const input = document.querySelector(`[name="${key}"]`);
+                        if (input) {
+                            if (input.type === "radio" || input.type === "checkbox") {
+                                const matchingInput = document.querySelector(`[name="${key}"][value="${value}"]`);
+                                if (matchingInput) {
+                                    matchingInput.checked = true;
+                                }
+                            } else {
+                                input.value = value;
+                            }
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching saved choices:', error));
+
+
+        function closeDisclaimer() {
+            modal.style.display = 'none';
+            disclaimerAcceptedField.value = 'true';
+            localStorage.setItem('disclaimerAccepted', 'true');
+        }
+        
+        button.addEventListener('click', closeDisclaimer);
+        
+        const hasAccepted = localStorage.getItem('disclaimerAccepted');
+        
+        if (!hasAccepted) {
+            modal.style.display = 'flex';
+        }
+
+        modal.querySelector('.bg-white').addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+
+    });
+
+    document.getElementById('symptomForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+    
+        const loadingDiv = document.getElementById('loading');
+        const responseArea = document.getElementById('response-area');
+    
+        let animationInterval = showLoadingAnimation('response-area');
+        loadingDiv.classList.remove('hidden');
+    
+        const formData = {
+            Name: document.querySelector('input[name="Name"]').value || 'Keine',
+            Pflegegrad: document.querySelector('input[name="Pflegegrad"]:checked')?.value || 'Keine',
+            Mobilität: document.querySelector('input[name="Mobilität"]:checked')?.value || 'Keine',
+            Einschränkungen: document.querySelector('select[name="Einschränkungen"]')?.value || 'Keine',
+            Hilfsmittel: document.querySelector('input[name="Hilfsmittel"]:checked')?.value || 'Keine',
+            Geräte: Array.from(document.querySelectorAll('input[name="Geräte"]:checked')).map(checkbox => checkbox.value).join(' und ') || 'Keine',
+            Treppen: Array.from(document.querySelectorAll('input[name="Einschränkungen"]:checked')).map(checkbox => checkbox.value).join(' und ') || 'Keine',
+            Stürze: document.querySelector('input[name="Stürze"]:checked')?.value || 'Keine',
+            Kommunikation: Array.from(document.querySelectorAll('input[name="Kommunikation"]:checked')).map(checkbox => checkbox.value).join(' und ') || 'Keine',
+            Schlaf: document.querySelector('input[name="Schlaf"]:checked')?.value || 'Keine',
+            Schlafprobleme: document.querySelector('input[name="Schlafprobleme"]:checked')?.value || 'Keine',
+            Unterstützung: Array.from(document.querySelectorAll('input[name="Unterstützung"]:checked')).map(checkbox => checkbox.value).join(' und ') || 'Keine',
+            Atmung: document.querySelector('input[name="Atmung"]:checked')?.value || 'Keine',
+            Vergessen: Array.from(document.querySelectorAll('input[name="Vergessen"]:checked')).map(checkbox => checkbox.value).join(' und ') || 'Keine',
+            Hobbys: Array.from(document.querySelectorAll('input[name="Hobbys"]:checked')).map(checkbox => checkbox.value).join(' und ') || 'Keine',
+            WeitereInfos: document.querySelector('textarea[name="WeitereInfos"]').value || 'Keine',
+        };
+    
+        try {
+            const response = await fetch('/api/ai', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    formData: formData,
+                }),
+            });
+    
+            const data = await response.json();
+    
+            if (data.error) {
+                responseArea.innerText = 'Error: ' + data.error;
+            } else {
+                responseArea.innerText = data.response;
+            }
+        } catch (error) {
+            responseArea.innerText = 'Fehler bei der Anfrage';
+        } finally {
+            loadingDiv.classList.add('hidden'); 
+            clearInterval(animationInterval); 
+        }
+    });
+    
+    function showLoadingAnimation(elementId) {
+        const element = document.getElementById(elementId);
+    
+        if (!element) {
+            console.error('Element not found');
+            return null;
+        }
+    
+        element.innerHTML = 'Die Antworten werden geladen';
+    
+        let dotCount = 0;
+        const maxDots = 3;
+    
+        const interval = setInterval(() => {
+            dotCount = (dotCount + 1) % (maxDots + 1); 
+            element.innerHTML = 'Die Antworten werden geladen' + '.'.repeat(dotCount);
+        }, 500);
+    
+        return interval;
+    }
+    
+    const form = document.querySelector('form');
+    form.addEventListener('change', function() {
+        const formData = new FormData(form);
+        const formObject = Object.fromEntries(formData);
+        
+        
+        fetch('/api/ai', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                formData: formObject,
+                isComplete: false
+            }),
+        });
+    });
+
+    function clearResponsesByIds(containerIds) {
+        containerIds.forEach(function(containerId) {
+            var container = document.getElementById(containerId);
+            
+            var checkboxes = container.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(function(checkbox) {
+                checkbox.checked = false;
+            });
+    
+            var textInputs = container.querySelectorAll('input[type="text"], textarea');
+            textInputs.forEach(function(input) {
+                input.value = '';
+            });
+    
+            var radios = container.querySelectorAll('input[type="radio"]');
+            radios.forEach(function(radio) {
+                radio.checked = false;
+            });
+    
+            var dropdowns = container.querySelectorAll('select');
+            dropdowns.forEach(function(dropdown) {
+                dropdown.selectedIndex = 0;
+            });
+        });
+    }
+
+    function clearAllResponses() {
+        var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(function(checkbox) {
+        checkbox.checked = false;
+    });
+    var textInputs = document.querySelectorAll('input[type="text"], textarea');
+    textInputs.forEach(function(input) {
+        input.value = '';
+    });
+    var radios = document.querySelectorAll('input[type="radio"]');
+    radios.forEach(function(radio) {
+        radio.checked = false;
+    });
+    var dropdowns = document.querySelectorAll('select');
+    dropdowns.forEach(function(dropdown) {
+        dropdown.selectedIndex = 0;
+    });
+    }
+
+    async function sendPDF() {
+        const sendButton = document.getElementById('send-pdf');
+        const originalText = sendButton.innerText; 
+    
+        sendButton.innerText = 'Wird gesendet...';
+        sendButton.disabled = true; 
+    
+        try {
+            const response = await fetch('/send_pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            });
+    
+            const result = await response.json();
+    
+            sendButton.innerText = 'Gesendet!';
+        } catch (error) {
+            console.error('Error sending PDF:', error);
+            alert('Failed to send PDF. Please try again.');
+        } finally {
+            setTimeout(() => {
+                sendButton.innerText = originalText; 
+                sendButton.disabled = false; 
+            }, 2000); 
+        }
+    }    
+
+</script>
+</body>
+</html>
+{% endblock %}

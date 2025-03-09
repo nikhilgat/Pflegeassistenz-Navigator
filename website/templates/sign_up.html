@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Sign Up{% endblock %}
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600;700&display=swap" rel="stylesheet">  
+<style>          
+    body {
+        font-family: 'Instrument Sans', sans-serif;
+    }
+</style>
+
+<div class="bg-gradient-to-r from-blue-800 to-blue-600 text-white text-center py-10">
+    <h1 class="text-4xl font-bold mb-4">Willkommen beim Pflegeassistenz-Navigator</h1>
+    <p class="text-lg mb-5">Erhalten Sie KI-generierte Empfehlungen, um die Lebensqualität in den eigenen vier Wänden zu verbessern.</p>
+</div>
+
+<div class="flex flex-col md:flex-row gap-4 max-w-6xl mx-auto px-4 py-8 overflow-auto md:max-h-screen">
+
+    <div class="flex-1 bg-white rounded-lg shadow-lg p-8">
+        <h3 class="text-gray-800 text-lg font-semibold">Der Pflegeassistenz-Navigator</h3>
+        <p class="text-gray-600 leading-relaxed mt-4">
+            Der Pflegeassistenz-Navigator gibt Ihnen oder Ihren pflegebedürftigen Angehörigen KI-generierte Empfehlungen, welche Assistenzsysteme und Pflegehilfsmittel die Lebensqualität in den eigenen vier Wänden verbessern können und wie die Wohnumgebung positiv verändert werden könnte.
+        </p>
+        <p class="text-gray-600 leading-relaxed mt-4">
+            Probieren Sie den Fragebogen gerne aus. Nach der Registrierung mit Ihrer E-Mail-Adresse können Sie Ihre KI-Empfehlungen bei Bedarf als PDF erhalten und Ihre Angaben nachträglich ändern.
+        </p>
+        <p class="text-gray-600 leading-relaxed mt-4">
+            Der Pflegeassistenz-Navigator ist ein von der Hochschule Darmstadt im Rahmen des Forschungsprojektes BIM-4-Care entwickeltes Tool. Das Forschungsprojekt wird durch das Bundesministerium für Wirtschaft und Klimaschutz im Rahmen des Förderaufrufes SmartLivingNEXT gefördert.
+        </p>
+        <p class="text-gray-600 leading-relaxed mt-4">
+            Bei Fragen und Anregungen zum Pflegeassistenz-Navigator wenden Sie sich bitte an:
+            <a href="mailto:christian.walter@h-da.de" class="text-blue-500 underline">christian.walter@h-da.de</a>
+        </p>
+    </div>
+
+    <div class="flex-1 bg-white rounded-lg shadow-lg p-8">
+        <h2 class="text-xl font-bold text-center text-gray-800 mb-8">Registrieren</h2>
+        <form method="POST">
+            <div>
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-600 mb-2">E-Mail Adresse</label>
+                    <input type="email" id="email" name="email" required 
+                           class="w-full p-3 border border-gray-300 rounded-md outline-none">
+                </div>
+    
+                <div class="mt-4">
+                    <label for="firstName" class="block text-sm font-medium text-gray-600 mb-2">Vollständiger Name</label>
+                    <input type="text" id="firstName" name="firstName" required 
+                           class="w-full p-3 border border-gray-300 rounded-md outline-none">
+                </div>
+                <br>
+                <button id="submitButton" type="submit" disabled 
+                        class="w-full bg-gray-400 text-white py-3 rounded-md mt-4 cursor-not-allowed">Registrieren</button>
+            </div>
+        </form>
+    </div>    
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const emailInput = document.getElementById('email');
+        const nameInput = document.getElementById('firstName');
+        const submitButton = document.getElementById('submitButton');
+
+        function toggleButtonState() {
+            if (emailInput.value.trim() !== '' && nameInput.value.trim() !== '') {
+                submitButton.disabled = false;
+                submitButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                submitButton.classList.add('bg-blue-600', 'hover:bg-blue-500');
+            } else {
+                submitButton.disabled = true;
+                submitButton.classList.remove('bg-blue-600', 'hover:bg-blue-500');
+                submitButton.classList.add('bg-gray-400', 'cursor-not-allowed');
+            }
+        }
+
+        emailInput.addEventListener('input', toggleButtonState);
+        nameInput.addEventListener('input', toggleButtonState);
+    });
+</script>
+
+
+
+{% endblock %}

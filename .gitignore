@@ -1,0 +1,13 @@
+.venv
+
+.env
+
+instance
+
+__pycache__
+
+database.db
+
+testing.py
+
+testing.html
