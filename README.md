@@ -40,7 +40,7 @@ Pflegeassistenz‑Navigator/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 1. Clone the repository:
    ```bash
@@ -67,7 +67,7 @@ Pflegeassistenz‑Navigator/
 
 ---
 
-## 🌍 Why It Matters
+## Why It Matters
 
 - **Aging societies** need digital tools for elderly care and facility navigation.
 - Reduces **caregiver burden** by providing a digital assistant for daily orientation tasks.
@@ -75,7 +75,7 @@ Pflegeassistenz‑Navigator/
 
 ---
 
-## 🛠️ Next Steps
+## Next Steps
 
 - Document actual backend dependencies (add `requirements.txt`).
 - Expand documentation of the `website/` frontend (pages, scripts, styles).
@@ -84,6 +84,6 @@ Pflegeassistenz‑Navigator/
 
 ---
 
-## 📖 License
+## License
 
 MIT License.
