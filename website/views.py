@@ -78,19 +78,21 @@ def ai():
             weitere_infos=form_data.get('WeitereInfos', 'Keine')
         )
 
-        existing_detail = Details.query.filter_by(user_id=current_user.id, is_complete=False).first()
+# to stop overwriting the existing user details
+        # existing_detail = Details.query.filter_by(user_id=current_user.id, is_complete=False).first()
 
         response = ai_assistant.get_response(prompt)
 
-        if existing_detail:
-            existing_detail.prompt = prompt
-            existing_detail.form_data = form_data
-            existing_detail.is_complete = is_complete
-            existing_detail.saved_choices = form_data
-            existing_detail.response = response
-            db.session.commit()
-        else:
-            new_details = Details(
+# to stop overwriting the existing user details
+        # if existing_detail:
+        #     existing_detail.prompt = prompt
+        #     existing_detail.form_data = form_data
+        #     existing_detail.is_complete = is_complete
+        #     existing_detail.saved_choices = form_data
+        #     existing_detail.response = response
+        #     db.session.commit()
+        # else:
+        new_details = Details(
                 prompt=prompt,
                 form_data=form_data,
                 user_id=current_user.id,
@@ -98,8 +100,8 @@ def ai():
                 saved_choices=form_data,
                 response=response
             )
-            db.session.add(new_details)
-            db.session.commit()
+        db.session.add(new_details)
+        db.session.commit()
 
         return jsonify({'success': True, 'isComplete': is_complete, 'response': response})
 

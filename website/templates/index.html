@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BIM-4-Care — Barrierefreies Bauen</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card img { height: 200px; object-fit: cover; }
+        
+        /* Hover-Effekt für die Karten */
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Entfernt Standard-Link-Design */
+        .card-link {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">BIM-4-Care — Barrierefreies Bauen</a>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="text-center mb-4">
+            <h1>Willkommen beim Barrierefrei-Konfigurator</h1>
+            <p class="text-muted">Hier findest du Lösungen für barrierefreies Wohnen.</p>
+        </div>
+
+        <div class="row">
+            <!-- Schwellen Konfigurator -->
+            <div class="col-md-4">
+                <a href="schwellen" class="card-link">
+                    <div class="card shadow">
+                        <img src="/static/schwelle.jpg" class="card-img-top" alt="Schwellen-Konfigurator">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Schwellen</h5>
+                            <p class="card-text">Finde Lösungen zur Überwindung von Türschwellen.</p>
+                            <a href="schwellen" class="btn btn-primary">Jetzt starten</a>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Treppenlift Konfigurator -->
+            <div class="col-md-4">
+                <a href="treppenlift" class="card-link">
+                    <div class="card shadow">
+                        <img src="/static/treppenlift.jpg" class="card-img-top" alt="Treppenlift-Konfigurator">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Treppenlift</h5>
+                            <p class="card-text">Wähle den passenden Treppenlift für dein Zuhause.</p>
+                            <a href="treppenlift" class="btn btn-primary">Jetzt starten</a>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Türverbreiterung Konfigurator -->
+            <div class="col-md-4">
+                <a href="tuerverbreiterung" class="card-link">
+                    <div class="card shadow">
+                        <img src="/static/tuerverbreiterung.jpg" class="card-img-top" alt="Türverbreiterung-Konfigurator">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Türverbreiterung</h5>
+                            <p class="card-text">Prüfe, wie du deine Türöffnungen erweitern kannst.</p>
+                            <a href="tuerverbreiterung" class="btn btn-primary">Jetzt starten</a>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-primary text-white text-center py-3 mt-5">
+        B4C - Hochschule Darmstadt
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

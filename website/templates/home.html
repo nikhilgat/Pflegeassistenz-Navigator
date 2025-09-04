@@ -406,6 +406,152 @@
     </div>      
 <script>
 
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('disclaimerModal');
+    const button = document.getElementById('disclaimerAccepted');
+    const disclaimerAcceptedField = document.getElementById('disclaimerAccepted');
+    const form = document.getElementById('symptomForm');
+    const loadingDiv = document.getElementById('loading');
+    const responseArea = document.getElementById('response-area');
+    let isSubmitting = false;
+
+    fetch('/api/saved-choices')
+        .then(response => response.json())
+        .then(data => {
+            const savedChoices = data.savedChoices || [];
+            if (savedChoices.length > 0) {
+                const dropdown = document.createElement('select');
+                dropdown.id = 'savedRecords';
+                dropdown.innerHTML = '<option value="">Gespeicherte Einträge auswählen</option>';
+                savedChoices.forEach(record => {
+                    const option = document.createElement('option');
+                    option.value = record.id;
+                    option.text = `${record.name} (${new Date(record.date).toLocaleString()})`;
+                    dropdown.appendChild(option);
+                });
+                responseArea.prepend(dropdown);
+
+                dropdown.addEventListener('change', function () {
+                    const selectedRecord = savedChoices.find(record => record.id == this.value);
+                    if (selectedRecord) {
+                        for (const [key, value] of Object.entries(selectedRecord.saved_choices)) {
+                            const input = document.querySelector(`[name="${key}"]`);
+                            if (input) {
+                                if (input.type === 'radio' || input.type === 'checkbox') {
+                                    const matchingInput = document.querySelector(`[name="${key}"][value="${value}"]`);
+                                    if (matchingInput) {
+                                        matchingInput.checked = true;
+                                    }
+                                } else {
+                                    input.value = value;
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        })
+        .catch(error => console.error('Error fetching saved choices:', error));
+
+    function closeDisclaimer() {
+        modal.style.display = 'none';
+        disclaimerAcceptedField.value = 'true';
+        localStorage.setItem('disclaimerAccepted', 'true');
+    }
+
+    if (button) {
+        button.addEventListener('click', closeDisclaimer);
+    }
+
+    const hasAccepted = localStorage.getItem('disclaimerAccepted');
+    if (!hasAccepted && modal) {
+        modal.style.display = 'flex';
+    }
+
+    if (modal) {
+        modal.querySelector('.bg-white').addEventListener('click', function (event) {
+            event.stopPropagation();
+        });
+    }
+
+    if (form) {
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            if (isSubmitting) {
+                console.log('Submission already in progress, ignoring');
+                return;
+            }
+
+            isSubmitting = true;
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            loadingDiv.classList.remove('hidden');
+            responseArea.innerText = 'Wird verarbeitet...';
+            let animationInterval = showLoadingAnimation('response-area');
+
+            const formData = {
+                Name: document.querySelector('input[name="Name"]').value || 'Keine',
+                Pflegegrad: document.querySelector('input[name="Pflegegrad"]:checked')?.value || 'Keine',
+                Mobilität: document.querySelector('input[name="Mobilität"]:checked')?.value || 'Keine',
+                Einschränkungen: document.querySelector('select[name="Einschränkungen"]')?.value || 'Keine',
+                Hilfsmittel: document.querySelector('input[name="Hilfsmittel"]:checked')?.value || 'Keine',
+                Geräte: Array.from(document.querySelectorAll('input[name="Geräte"]:checked'))
+                    .map(checkbox => checkbox.value)
+                    .join(' und ') || 'Keine',
+                Treppen: document.querySelector('input[name="Treppen"]:checked')?.value || 'Keine',
+                Stürze: document.querySelector('input[name="Stürze"]:checked')?.value || 'Keine',
+                Kommunikation: Array.from(document.querySelectorAll('input[name="Kommunikation"]:checked'))
+                    .map(checkbox => checkbox.value)
+                    .join(' und ') || 'Keine',
+                Schlaf: document.querySelector('input[name="Schlaf"]:checked')?.value || 'Keine',
+                Schlafprobleme: document.querySelector('input[name="Schlafprobleme"]:checked')?.value || 'Keine',
+                Unterstützung: Array.from(document.querySelectorAll('input[name="Unterstützung"]:checked'))
+                    .map(checkbox => checkbox.value)
+                    .join(' und ') || 'Keine',
+                Atmung: document.querySelector('input[name="Atmung"]:checked')?.value || 'Keine',
+                Vergessen: Array.from(document.querySelectorAll('input[name="Vergessen"]:checked'))
+                    .map(checkbox => checkbox.value)
+                    .join(' und ') || 'Keine',
+                Hobbys: Array.from(document.querySelectorAll('input[name="Hobbys"]:checked'))
+                    .map(checkbox => checkbox.value)
+                    .join(' und ') || 'Keine',
+                WeitereInfos: document.querySelector('textarea[name="WeitereInfos"]').value || 'Keine',
+            };
+
+            console.log('Sending form data:', formData);
+
+            try {
+                const response = await fetch('/api/ai', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        formData: formData,
+                        isComplete: false
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    responseArea.innerText = 'Error: ' + data.error;
+                } else {
+                    responseArea.innerText = data.response;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                responseArea.innerText = 'Fehler bei der Anfrage';
+            } finally {
+                isSubmitting = false;
+                submitButton.disabled = false;
+                loadingDiv.classList.add('hidden');
+                clearInterval(animationInterval);
+            }
+        });
+    }
+
     function openFollowUpQuestion(questionId) {
         const questionDiv = document.getElementById(questionId);
         questionDiv.classList.remove('hidden');
@@ -414,10 +560,8 @@
     function openFollowUpQuestions() {
         const questionDiv2 = document.getElementById('Einschränkungen');
         questionDiv2.classList.remove('hidden');
-
         const questionDiv3 = document.getElementById('Hilfsmittel');
         questionDiv3.classList.remove('hidden');
-
         const questionDiv4 = document.getElementById('Treppen');
         questionDiv4.classList.remove('hidden');
     }
@@ -425,16 +569,14 @@
     function closeFollowUpQuestions() {
         const questionDiv2 = document.getElementById('Einschränkungen');
         questionDiv2.classList.add('hidden');
-
         const questionDiv3 = document.getElementById('Hilfsmittel');
-        questionDiv3.classList.add('hidden');    
-
+        questionDiv3.classList.add('hidden');
         const questionDiv4 = document.getElementById('Treppen');
         questionDiv4.classList.add('hidden');
     }
+
     function showQuestions() {
         const mobility = document.getElementById('Mobilität');
-
         if (mobility.value === 'Ja') {
             openFollowUpQuestions();
         }
@@ -445,173 +587,39 @@
         questionDiv.classList.add('hidden');
     }
 
-    let responseButton = document.getElementById('getResponseButton');
-
-    function goToResponseArea() {
-        document.body.scrollIntoView({behavior: 'smooth', block:"end"});
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('disclaimerModal');
-        const button = document.getElementById('disclaimerAccepted');
-        const disclaimerAcceptedField = document.getElementById('disclaimerAccepted');
-
-            fetch('/api/saved-choices')
-                .then(response => response.json())
-                .then(data => {
-                    const savedChoices = data.savedChoices || {};
-                    for (const [key, value] of Object.entries(savedChoices)) {
-                        const input = document.querySelector(`[name="${key}"]`);
-                        if (input) {
-                            if (input.type === "radio" || input.type === "checkbox") {
-                                const matchingInput = document.querySelector(`[name="${key}"][value="${value}"]`);
-                                if (matchingInput) {
-                                    matchingInput.checked = true;
-                                }
-                            } else {
-                                input.value = value;
-                            }
-                        }
-                    }
-                })
-                .catch(error => console.error('Error fetching saved choices:', error));
-
-
-        function closeDisclaimer() {
-            modal.style.display = 'none';
-            disclaimerAcceptedField.value = 'true';
-            localStorage.setItem('disclaimerAccepted', 'true');
-        }
-        
-        button.addEventListener('click', closeDisclaimer);
-        
-        const hasAccepted = localStorage.getItem('disclaimerAccepted');
-        
-        if (!hasAccepted) {
-            modal.style.display = 'flex';
-        }
-
-        modal.querySelector('.bg-white').addEventListener('click', function(event) {
-            event.stopPropagation();
-        });
-
-    });
-
-    document.getElementById('symptomForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
-    
-        const loadingDiv = document.getElementById('loading');
-        const responseArea = document.getElementById('response-area');
-    
-        let animationInterval = showLoadingAnimation('response-area');
-        loadingDiv.classList.remove('hidden');
-    
-        const formData = {
-            Name: document.querySelector('input[name="Name"]').value || 'Keine',
-            Pflegegrad: document.querySelector('input[name="Pflegegrad"]:checked')?.value || 'Keine',
-            Mobilität: document.querySelector('input[name="Mobilität"]:checked')?.value || 'Keine',
-            Einschränkungen: document.querySelector('select[name="Einschränkungen"]')?.value || 'Keine',
-            Hilfsmittel: document.querySelector('input[name="Hilfsmittel"]:checked')?.value || 'Keine',
-            Geräte: Array.from(document.querySelectorAll('input[name="Geräte"]:checked')).map(checkbox => checkbox.value).join(' und ') || 'Keine',
-            Treppen: Array.from(document.querySelectorAll('input[name="Einschränkungen"]:checked')).map(checkbox => checkbox.value).join(' und ') || 'Keine',
-            Stürze: document.querySelector('input[name="Stürze"]:checked')?.value || 'Keine',
-            Kommunikation: Array.from(document.querySelectorAll('input[name="Kommunikation"]:checked')).map(checkbox => checkbox.value).join(' und ') || 'Keine',
-            Schlaf: document.querySelector('input[name="Schlaf"]:checked')?.value || 'Keine',
-            Schlafprobleme: document.querySelector('input[name="Schlafprobleme"]:checked')?.value || 'Keine',
-            Unterstützung: Array.from(document.querySelectorAll('input[name="Unterstützung"]:checked')).map(checkbox => checkbox.value).join(' und ') || 'Keine',
-            Atmung: document.querySelector('input[name="Atmung"]:checked')?.value || 'Keine',
-            Vergessen: Array.from(document.querySelectorAll('input[name="Vergessen"]:checked')).map(checkbox => checkbox.value).join(' und ') || 'Keine',
-            Hobbys: Array.from(document.querySelectorAll('input[name="Hobbys"]:checked')).map(checkbox => checkbox.value).join(' und ') || 'Keine',
-            WeitereInfos: document.querySelector('textarea[name="WeitereInfos"]').value || 'Keine',
-        };
-    
-        try {
-            const response = await fetch('/api/ai', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    prompt: prompt,
-                    formData: formData,
-                }),
-            });
-    
-            const data = await response.json();
-    
-            if (data.error) {
-                responseArea.innerText = 'Error: ' + data.error;
-            } else {
-                responseArea.innerText = data.response;
-            }
-        } catch (error) {
-            responseArea.innerText = 'Fehler bei der Anfrage';
-        } finally {
-            loadingDiv.classList.add('hidden'); 
-            clearInterval(animationInterval); 
-        }
-    });
-    
     function showLoadingAnimation(elementId) {
         const element = document.getElementById(elementId);
-    
         if (!element) {
             console.error('Element not found');
             return null;
         }
-    
         element.innerHTML = 'Die Antworten werden geladen';
-    
         let dotCount = 0;
         const maxDots = 3;
-    
         const interval = setInterval(() => {
-            dotCount = (dotCount + 1) % (maxDots + 1); 
+            dotCount = (dotCount + 1) % (maxDots + 1);
             element.innerHTML = 'Die Antworten werden geladen' + '.'.repeat(dotCount);
         }, 500);
-    
         return interval;
     }
-    
-    const form = document.querySelector('form');
-    form.addEventListener('change', function() {
-        const formData = new FormData(form);
-        const formObject = Object.fromEntries(formData);
-        
-        
-        fetch('/api/ai', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                formData: formObject,
-                isComplete: false
-            }),
-        });
-    });
 
     function clearResponsesByIds(containerIds) {
-        containerIds.forEach(function(containerId) {
+        containerIds.forEach(function (containerId) {
             var container = document.getElementById(containerId);
-            
             var checkboxes = container.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach(function(checkbox) {
+            checkboxes.forEach(function (checkbox) {
                 checkbox.checked = false;
             });
-    
             var textInputs = container.querySelectorAll('input[type="text"], textarea');
-            textInputs.forEach(function(input) {
+            textInputs.forEach(function (input) {
                 input.value = '';
             });
-    
             var radios = container.querySelectorAll('input[type="radio"]');
-            radios.forEach(function(radio) {
+            radios.forEach(function (radio) {
                 radio.checked = false;
             });
-    
             var dropdowns = container.querySelectorAll('select');
-            dropdowns.forEach(function(dropdown) {
+            dropdowns.forEach(function (dropdown) {
                 dropdown.selectedIndex = 0;
             });
         });
@@ -619,49 +627,60 @@
 
     function clearAllResponses() {
         var checkboxes = document.querySelectorAll('input[type="checkbox"]');
-    checkboxes.forEach(function(checkbox) {
-        checkbox.checked = false;
-    });
-    var textInputs = document.querySelectorAll('input[type="text"], textarea');
-    textInputs.forEach(function(input) {
-        input.value = '';
-    });
-    var radios = document.querySelectorAll('input[type="radio"]');
-    radios.forEach(function(radio) {
-        radio.checked = false;
-    });
-    var dropdowns = document.querySelectorAll('select');
-    dropdowns.forEach(function(dropdown) {
-        dropdown.selectedIndex = 0;
-    });
+        checkboxes.forEach(function (checkbox) {
+            checkbox.checked = false;
+        });
+        var textInputs = document.querySelectorAll('input[type="text"], textarea');
+        textInputs.forEach(function (input) {
+            input.value = '';
+        });
+        var radios = document.querySelectorAll('input[type="radio"]');
+        radios.forEach(function (radio) {
+            radio.checked = false;
+        });
+        var dropdowns = document.querySelectorAll('select');
+        dropdowns.forEach(function (dropdown) {
+            dropdown.selectedIndex = 0;
+        });
     }
 
     async function sendPDF() {
         const sendButton = document.getElementById('send-pdf');
-        const originalText = sendButton.innerText; 
-    
+        const originalText = sendButton.innerText;
+        const selectedRecordId = document.getElementById('savedRecords')?.value;
+
         sendButton.innerText = 'Wird gesendet...';
-        sendButton.disabled = true; 
-    
+        sendButton.disabled = true;
+
         try {
             const response = await fetch('/send_pdf', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ details_id: selectedRecordId || null }),
             });
-    
+
             const result = await response.json();
-    
-            sendButton.innerText = 'Gesendet!';
+            if (result.message) {
+                sendButton.innerText = 'Gesendet!';
+            } else {
+                throw new Error(result.error || 'Failed to send PDF');
+            }
         } catch (error) {
             console.error('Error sending PDF:', error);
             alert('Failed to send PDF. Please try again.');
         } finally {
             setTimeout(() => {
-                sendButton.innerText = originalText; 
-                sendButton.disabled = false; 
-            }, 2000); 
+                sendButton.innerText = originalText;
+                sendButton.disabled = false;
+            }, 2000);
         }
-    }    
+    }
+
+    const sendPdfButton = document.getElementById('send-pdf');
+    if (sendPdfButton) {
+        sendPdfButton.addEventListener('click', sendPDF);
+    }
+});    
 
 </script>
 </body>
